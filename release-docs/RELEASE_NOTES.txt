@@ -1,7 +1,21 @@
 ==============================================
  NOVA STORAGE — Notes de version
- Version 1.1.0
+ Version 1.2.0
 ==============================================
+
+NOUVEAUTÉS DE LA VERSION 1.2.0
+------------------------------
+
+  - Publication automatisée : la commande `npm run release -- X.Y.Z`
+    prépare (bump, typecheck, tests), build, vérifie les artefacts,
+    régénère le livrable, publie le site et crée la GitHub Release
+    en une seule commande.
+  - Mise à jour automatique validée de bout en bout en production :
+    une nouvelle GitHub Release est détectée au démarrage, téléchargée
+    en arrière-plan et installée silencieusement à la fermeture de
+    l'application.
+  - Canal de mise à jour définitif : GitHub Releases (repo public
+    hugo66150-afk/nova-storage) — plus aucun serveur à héberger.
 
 CONTENU DE CETTE VERSION
 ------------------------
@@ -195,9 +209,13 @@ PAIEMENT ET LICENCES
 SUIVI
 -----
   - La version 1.0.0 était la première version distribuable.
-  - La version 1.1.0 ajoute les mises à jour automatiques
-    (electron-updater, fournisseur generic) et une détection des
-    jeux élargie : Riot (Valorant, League of Legends), Ubisoft,
-    EA, Epic, GOG et autres launchers + registre Windows.
+  - La version 1.1.0 a ajouté les mises à jour automatiques
+    (electron-updater) et une détection des jeux élargie : Riot
+    (Valorant, League of Legends), Ubisoft, EA, Epic, GOG et
+    autres launchers + registre Windows.
+  - La version 1.2.0 valide le pipeline de publication automatisé
+    et le canal GitHub Releases en production : détection,
+    téléchargement et installation à la fermeture testés en
+    conditions réelles.
   - Le paiement réel (Lemon Squeezy) sera activé dans une
     prochaine mise à jour, sans modification du produit.

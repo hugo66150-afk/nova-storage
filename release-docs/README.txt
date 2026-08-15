@@ -1,6 +1,6 @@
 ==============================================
  NOVA STORAGE — Guide de démarrage
- Version 1.1.0
+ Version 1.2.0
 ==============================================
 
 Nova Storage est un gestionnaire intelligent du stockage Windows.
@@ -76,7 +76,7 @@ ne quitte votre ordinateur.
   - Votre statut Nova (Free / Essai / Pro) est visible en permanence
     dans la barre de titre (badge FREE / PRO · ESSAI / PRO) et en
     détail dans les Paramètres, section « Nova Pro ».
-  - Version : 1.1.0 — consultez RELEASE_NOTES.txt pour le détail
+  - Version : 1.2.0 — consultez RELEASE_NOTES.txt pour le détail
     de cette version.
 
 --------------------------------------------------------------

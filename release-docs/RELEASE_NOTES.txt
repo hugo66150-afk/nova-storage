@@ -1,7 +1,18 @@
 ==============================================
  NOVA STORAGE — Notes de version
- Version 1.2.0
+ Version 1.3.0
 ==============================================
+
+NOUVEAUTÉS DE LA VERSION 1.3.0
+------------------------------
+
+  - Publication entièrement automatisée via GitHub Actions : au push
+    du tag vX.Y.Z, le workflow build l'installateur Windows, publie la
+    GitHub Release (latest.yml + installateur + blockmap) et met à jour
+    le site (téléchargements + configuration) automatiquement.
+  - Le canal de mise à jour automatique reste GitHub Releases : les
+    utilisateurs installés reçoivent la nouvelle version au démarrage
+    suivant, sans aucune action manuelle.
 
 NOUVEAUTÉS DE LA VERSION 1.2.0
 ------------------------------
@@ -217,5 +228,9 @@ SUIVI
     et le canal GitHub Releases en production : détection,
     téléchargement et installation à la fermeture testés en
     conditions réelles.
+  - La version 1.3.0 automatise totalement la publication : le
+    workflow GitHub Actions (déclenché au push d'un tag) construit
+    l'installateur, publie la GitHub Release et met à jour le site
+    sans aucune action manuelle.
   - Le paiement réel (Lemon Squeezy) sera activé dans une
     prochaine mise à jour, sans modification du produit.

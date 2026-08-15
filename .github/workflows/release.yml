@@ -45,6 +45,11 @@ jobs:
       - name: Tests
         run: npm test
 
+      # electron-builder n'embarque que dist/ : sur un checkout propre, il
+      # faut d'abord compiler renderer + main (comme `npm run dist` en local).
+      - name: Build (renderer + main)
+        run: npm run build
+
       - name: Build + publier la GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

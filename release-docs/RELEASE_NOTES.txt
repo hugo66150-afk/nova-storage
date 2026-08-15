@@ -1,0 +1,203 @@
+==============================================
+ NOVA STORAGE — Notes de version
+ Version 1.1.0
+==============================================
+
+CONTENU DE CETTE VERSION
+------------------------
+
+Première version distribuable de Nova Storage. Cette version
+finalise le socle fonctionnel de l'application et intègre le
+modèle Nova Free / Nova Pro.
+
+Fonctionnalités principales :
+
+  - Analyse complète du stockage Windows
+      • Analyse complète, rapide ou personnalisée (multi-disques)
+      • Scan exécuté en arrière-plan (worker dédié), interface fluide
+      • Progression, pause, reprise et annulation
+      • Classification automatique (catégories, gros fichiers,
+        fichiers anciens, téléchargements, doublons par contenu)
+
+  - Nova Coach
+      • Recommandations classées par gain d'espace
+      • Explications de chaque suggestion et actions sécurisées
+
+  - Gardien du stockage
+      • Surveillance en arrière-plan des disques (même application
+        fermée, via le systray)
+      • Seuils d'alerte configurables (ex. 80 % / 90 % / 95 %)
+      • Notifications Windows et résumé hebdomadaire (gratuits)
+      • Prévisions de remplissage (Nova Pro)
+      • Prévisions avancées (Nova Pro) : dates estimées des seuils
+        80 / 90 / 95 % et de saturation, calculées sur l'historique
+        réel d'évolution du stockage
+
+  - Catégorie « Nova Pro ✦ » dans la sidebar
+      • Toutes les fonctions Pro regroupées et visibles immédiatement
+        (même en Free) : Nova Pro, AutoClean, Automatisation,
+        Gardien Pro, Prévisions — chacune avec un badge PRO doré
+
+  - Hub Nova Pro
+      • Page d'accueil de l'offre : statut de licence clair
+        (Free / Essai / Pro), prix unique 9,97 €, essai 7 jours,
+        cartes des fonctionnalités premium, état honnête du store
+
+  - Nova AutoClean (Nova Pro)
+      • Maintenance automatique : fichiers temporaires, téléchargements
+        anciens, gros fichiers — en quarantaine restaurable ou corbeille
+      • Déclencheurs : quotidien, hebdomadaire, au démarrage, ou quand
+        un disque dépasse un seuil (80 / 85 / 90 %)
+      • Simulation complète avant activation (dry-run), confirmation,
+        exécution « maintenant », historique détaillé
+      • Réutilise le moteur de règles existant : protections, exclusions
+        et quarantaine appliquées automatiquement
+
+  - Gardien Pro (Nova Pro)
+      • Détection de croissance anormale (rythme récent vs moyenne)
+      • Causes principales par catégorie (dernière analyse)
+      • Bascule directe vers Nova AutoClean pour passer à l'action
+
+  - Prévisions (Nova Pro)
+      • Page dédiée : tendance, rythme de remplissage, saturation
+        estimée, seuils 80 / 90 / 95 % et saturation complète
+      • « Pas assez de données » plutôt qu'une fausse précision
+
+  - Automatisation (Nova Pro)
+      • Éditeur de règles complet : créer, modifier, supprimer,
+        dupliquer, activer / désactiver une règle
+      • Conditions SI combinables (taille, ancienneté, extension,
+        dossier, emplacement, catégorie) et actions ALORS
+        (corbeille, quarantaine)
+      • Mode simulation (dry-run) : aperçu du nombre de fichiers
+        concernés, de l'espace libérable et des avertissements,
+        sans aucun effet réel — avant d'activer une règle
+      • Planification par règle : une fois, horaire, quotidien,
+        hebdomadaire ou mensuel, avec prochaine / dernière exécution
+      • Historique d'exécution détaillé (fichiers, espace, statut)
+
+  - Nettoyage sécurisé
+      • Corbeille Windows ou suppression définitive
+      • Quarantaine restaurable (avec restauration vers l'emplacement
+        d'origine)
+      • Exclusions utilisateur, éléments protégés, niveaux de confiance
+
+  - Applications et jeux
+      • Détection des applications installées, désinstallation
+        sécurisée avec sauvegarde .reg et nettoyage des restes
+      • Détection des jeux Steam, Epic, Battle.net, GOG, Riot,
+        Ubisoft, EA et autres (Valorant, League of Legends…) via
+        les bibliothèques, les dossiers de launchers et le registre
+        Windows
+
+  - Explorateur de fichiers intégré
+      • Navigation par dossiers avec tailles, tri et recherche
+
+  - Confidentialité LOCAL-FIRST
+      • Aucune télémétrie, aucune collecte, aucune donnée envoyée
+      • Base locale SQLite dans le profil utilisateur
+
+MODÈLE NOVA FREE / NOVA PRO
+---------------------------
+
+  NOVA FREE — 0 €, pour toujours
+    Analyse, visualisation, catégories, gros fichiers, doublons,
+    applications, jeux, nettoyage manuel, corbeille, quarantaine,
+    historique, Nova Coach et Gardien essentiel.
+
+  NOVA PRO — achat unique · 9,97 € TTC
+    Automatisation par règles, maintenance planifiée et prévisions
+    avancées du Gardien. Le paiement (Lemon Squeezy) sera activé
+    lors de la mise en ligne de la boutique.
+
+  ESSAI GRATUIT DE 7 JOURS
+    Chaque nouvel utilisateur peut activer 7 jours de Nova Pro sans
+    carte bancaire, depuis l'application. Essai unique : il ne
+    recommence pas après désinstallation/réinstallation. À la fin
+    de l'essai, Nova revient automatiquement à Free — aucune donnée
+    n'est supprimée, les règles restent sauvegardées.
+
+  UX STATUT NOVA (barre de titre et Paramètres)
+    Un badge de statut permanent dans la barre de titre indique
+    l'état exact : « FREE » (discret), « PRO · ESSAI » (violet,
+    jamais confondu avec un achat) ou « PRO » (doré, glow premium).
+    Un clic ouvre Paramètres → Nova Pro. Le Dashboard rappelle
+    sobrement la fin d'essai quelques jours avant l'expiration.
+    Le statut affiché provient exclusivement de la source de vérité
+    calculée côté MAIN : aucune page ouverte ni checkout ne peut
+    débloquer l'affichage Pro.
+
+Sécurité :
+  - contextIsolation, sandbox et nodeIntegration désactivé
+  - API preload minimale et typée (contextBridge)
+  - Politique de sécurité du contenu (CSP) stricte
+  - Validation des chemins et des commandes système
+  - Statut de licence calculé côté MAIN (jamais stocké tel quel) ;
+    les protections Pro sont appliquées dans le processus principal
+  - Aucune donnée ne quitte l'ordinateur
+
+SYSTÈMES SUPPORTÉS
+------------------
+  - Windows 10 / 11, 64 bits (x64)
+
+INSTALLATION
+------------
+  - Nova-Storage-Setup-x64.exe : installateur complet (choix du
+    dossier, raccourcis Bureau et Menu Démarrer, désinstallation propre)
+  - Mises à jour automatiques : l'application vérifie les mises à
+    jour au démarrage et installe silencieusement les nouvelles
+    versions par-dessus l'existante (electron-updater)
+
+VÉRIFICATIONS DE CETTE VERSION
+------------------------------
+  - Tests automatisés : 217/217 PASS (dont tests licence : Free,
+    essai 7 jours, expiration, horloge modifiée, données corrompues,
+    hors ligne, activation, restauration, révocation, sécurité du
+    checkout : validation d'URL https uniquement, URL officielle unique,
+    aucun faux paiement ; tests automation : helpers de règles,
+    avertissements dry-run, temps relatifs futur/ passé ; tests
+    AutoClean : configuration robuste, construction de la règle,
+    déclencheurs (quotidien/hebdo/démarrage/seuil disque), prochaine
+    exécution ; tests Gardien Pro : détection de croissance anormale ;
+    tests UI : rappel de fin d'essai, override d'aperçu des états ;
+    tests jeux : détection Riot/Blizzard/GOG via registre, exclusion
+    des launchers, dédoublonnage des racines imbriquées, VDF Steam)
+  - Typecheck TypeScript : PASS
+  - Build de production : PASS
+  - Packaging Windows (installateur NSIS) : PASS
+  - Installation réelle, lancement, persistance, désinstallation : PASS
+
+SIGNATURE
+---------
+  - Code signing : NON ENCORE CONFIGURÉ (voir ci-dessous)
+
+  AVANT LE LANCEMENT PUBLIC, une signature de code sera requise
+  pour éviter les avertissements Windows SmartScreen. Cette
+  version n'est pas encore signée.
+
+PAIEMENT ET LICENCES
+--------------------
+  - Produit Nova Pro publié sur Lemon Squeezy (Product 1292367 /
+    Variant 2022137) et checkout officiel configuré dans
+    l'application : https://novastorage.lemonsqueezy.com/checkout/buy/…
+    (le même checkout sera utilisé par le site Nova Storage — un seul
+    produit, un seul checkout, un seul système de licences).
+  - Le store est en attente d'activation par Lemon Squeezy : le bouton
+    d'achat est actif mais aucun paiement réel ne sera validé tant que
+    le store n'est pas activé. Le Pro ne se débloque que par validation
+    réelle d'une licence (jamais par l'ouverture du checkout).
+  - Aucune carte bancaire ne transite par l'application, aucun paiement
+    n'est simulé, aucune clé secrète n'est embarquée.
+  - Procédure de configuration réelle : docs/COMMERCIAL_SETUP.md
+    (projet source).
+  - Procédure de signature Windows : SIGNING.md (projet source).
+
+SUIVI
+-----
+  - La version 1.0.0 était la première version distribuable.
+  - La version 1.1.0 ajoute les mises à jour automatiques
+    (electron-updater, fournisseur generic) et une détection des
+    jeux élargie : Riot (Valorant, League of Legends), Ubisoft,
+    EA, Epic, GOG et autres launchers + registre Windows.
+  - Le paiement réel (Lemon Squeezy) sera activé dans une
+    prochaine mise à jour, sans modification du produit.

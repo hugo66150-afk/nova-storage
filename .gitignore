@@ -3,6 +3,6 @@ dist/
 release/
 .freebuff/
 *.log
-data/
+/data/
 *.local.db
 .DS_Store

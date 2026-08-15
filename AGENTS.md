@@ -145,6 +145,14 @@ suffit pas, il faut `/F` (avec `MSYS_NO_PATHCONV=1`).
   via electron-builder (`-p always`) avec `GH_TOKEN` (scope `repo`) ; le
   repo étant PUBLIC, les utilisateurs téléchargent la mise à jour sans
   aucun token. Le nom d'artefact est fixe (Nova-Storage-Setup-x64.exe).
+- CI : `.github/workflows/release.yml` publie automatiquement au push d'un
+  tag `vX.Y.Z` — validation version=tag, `npm ci`, tests, build Windows,
+  GitHub Release non-draft (3 assets) via electron-builder (`-p always`),
+  puis mise à jour du repo site (public/downloads + src/lib/site.ts avec
+  version/date/taille/sha256 réels) si le secret `SITE_REPO_TOKEN` est
+  configuré (PAT scope `repo` sur le repo du site) ; sans ce secret, la
+  release est publiée mais le site reste à mettre à jour manuellement
+  (npm run release -- X.Y.Z en local).
 
 ## Monétisation Free / Pro
 

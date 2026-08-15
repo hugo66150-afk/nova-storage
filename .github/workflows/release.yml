@@ -1,0 +1,123 @@
+name: Release
+
+# Publication d'une release Nova Storage au push d'un tag vX.Y.Z :
+#   1. vérifie que la version de package.json correspond au tag ;
+#   2. installe les dépendances et lance les tests ;
+#   3. build l'installateur Windows (NSIS) + latest.yml + blockmap ;
+#   4. publie la GitHub Release (non-draft, 3 assets) — c'est le canal
+#      d'auto-update d'electron-updater ;
+#   5. met à jour le repo du site (public/downloads + src/lib/site.ts)
+#      si le secret SITE_REPO_TOKEN est configuré (déclenche Vercel).
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Vérifier que la version correspond au tag
+        shell: bash
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Le tag ${GITHUB_REF_NAME} ne correspond pas à la version ${PKG_VERSION} de package.json"
+            exit 1
+          fi
+          echo "Release v${TAG_VERSION} validée."
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Tests
+        run: npm test
+
+      - name: Build + publier la GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx --yes electron-builder --win --publish always
+
+      - name: Vérifier la release (non-draft, 3 assets)
+        shell: bash
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${GITHUB_REF_NAME}" \
+            --jq '{draft: .draft, prerelease: .prerelease, assets: [.assets[].name]}'
+
+      - name: Mettre à jour le site (downloads + config) — nécessite SITE_REPO_TOKEN
+        shell: bash
+        env:
+          SITE_REPO_TOKEN: ${{ secrets.SITE_REPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SITE_REPO_TOKEN:-}" ]; then
+            echo "::warning::SITE_REPO_TOKEN non configuré — mise à jour du site ignorée (le téléchargement manuel reste sur la GitHub Release)."
+            exit 0
+          fi
+
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          AUTH="Authorization: basic $(printf 'x-access-token:%s' "$SITE_REPO_TOKEN" | base64 | tr -d '\n')"
+
+          # 1. Clone du repo site
+          git -c http.extraheader="$AUTH" clone --depth 1 https://github.com/hugo66150-afk/novastorage.git site
+          cd site
+          git config user.name "Nova Storage Release Bot"
+          git config user.email "noreply@github.com"
+
+          # 2. Téléchargement des assets de la release vers public/downloads/
+          mkdir -p public/downloads
+          for f in Nova-Storage-Setup-x64.exe latest.yml Nova-Storage-Setup-x64.exe.blockmap; do
+            curl -sL -f -o "public/downloads/$f" "https://github.com/hugo66150-afk/nova-storage/releases/download/${GITHUB_REF_NAME}/$f"
+          done
+
+          # 3. Mise à jour de src/lib/site.ts (version, date depuis latest.yml,
+          #    taille et sha256 réels de l'installateur)
+          cat > "$RUNNER_TEMP/site-update.cjs" <<'EOF'
+          const { createHash } = require("node:crypto");
+          const { readFileSync, writeFileSync, statSync } = require("node:fs");
+          const version = process.env.TAG_VERSION;
+          const p = "src/lib/site.ts";
+          let src = readFileSync(p, "utf8");
+          if (!src.includes("downloadConfig")) { console.error("site.ts illisible"); process.exit(1); }
+          const yml = readFileSync("public/downloads/latest.yml", "utf8");
+          const m = yml.match(/releaseDate:\s*'([^']+)'/);
+          const rel = new Date(m ? m[1] : Date.now());
+          const date = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "numeric", month: "long", year: "numeric" }).format(rel);
+          const exe = "public/downloads/Nova-Storage-Setup-x64.exe";
+          const sizeMo = `${Math.round(statSync(exe).size / 1048576)} Mo`;
+          const sha = createHash("sha256").update(readFileSync(exe)).digest("hex");
+          const edits = [
+            [/(version\s*:\s*)['"][\d.]+['"]/, `$1'${version}'`],
+            [/(date\s*:\s*)['"][^'"]*['"]/, `$1'${date}'`],
+            [/(size\s*:\s*)['"][^'"]*['"]/, `$1'${sizeMo}'`],
+            [/(sha256\s*:\s*)['"][0-9a-fA-F]+['"]/, `$1'${sha}'`],
+          ];
+          for (const [re, rep] of edits) {
+            if (!re.test(src)) { console.error(`motif introuvable : ${re.source}`); process.exit(1); }
+            src = src.replace(re, rep);
+          }
+          writeFileSync(p, src);
+          console.log(`site.ts → v${version}, ${date}, ${sizeMo}, sha256 ${sha.slice(0, 12)}…`);
+          EOF
+
+          TAG_VERSION="$TAG_VERSION" node "$RUNNER_TEMP/site-update.cjs"
+
+          # 4. Validation du site puis commit + push (déclenche Vercel)
+          npm ci
+          npm run typecheck && npm run lint && npm run build
+          git add src/lib/site.ts public/downloads
+          git commit -m "release: v${TAG_VERSION} (downloads + config)"
+          git -c http.extraheader="$AUTH" push origin main
+          echo "Site mis à jour et poussé — déploiement Vercel déclenché."

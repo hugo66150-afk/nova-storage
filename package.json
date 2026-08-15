@@ -53,7 +53,8 @@
       {
         "provider": "github",
         "owner": "hugo66150-afk",
-        "repo": "nova-storage"
+        "repo": "nova-storage",
+        "releaseType": "release"
       }
     ],
     "directories": {

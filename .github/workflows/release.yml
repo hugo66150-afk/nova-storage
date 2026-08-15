@@ -50,10 +50,34 @@ jobs:
       - name: Build (renderer + main)
         run: npm run build
 
-      - name: Build + publier la GitHub Release
+      # On build SANS publier : le publisher GitHub d'electron-builder peut
+      # créer plusieurs releases sur le même tag (assets éparpillés, observé
+      # en conditions réelles). La release est créée ensuite avec `gh` :
+      # déterministe, une seule release, 3 assets, notes de version.
+      - name: Build (NSIS + latest.yml + blockmap)
+        run: npx --yes electron-builder --win --publish never
+
+      - name: Publier la GitHub Release (gh)
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx --yes electron-builder --win --publish always
+        run: |
+          set -euo pipefail
+          # Rerun idempotent : supprimer TOUTES les releases du tag (l'API
+          # releases/tags renvoie 404 dès qu'il y a des doublons), sans toucher
+          # au tag lui-même (pas de --cleanup-tag).
+          gh api "repos/${GITHUB_REPOSITORY}/releases" --paginate \
+            --jq ".[] | select(.tag_name == \"${GITHUB_REF_NAME}\") | .id" |
+            while read -r rid; do
+              echo "Suppression de l'ancienne release ${rid} du tag ${GITHUB_REF_NAME}"
+              gh api -X DELETE "repos/${GITHUB_REPOSITORY}/releases/${rid}"
+            done
+          gh release create "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" \
+            --title "Nova Storage ${GITHUB_REF_NAME}" \
+            --notes-file release-docs/RELEASE_NOTES.txt \
+            release/Nova-Storage-Setup-x64.exe \
+            release/latest.yml \
+            release/Nova-Storage-Setup-x64.exe.blockmap
 
       - name: Vérifier la release (non-draft, 3 assets)
         shell: bash
